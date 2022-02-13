@@ -13,7 +13,7 @@
     }
   },
   "variables": {
-    "networkInterfaceName": "vs2022NIC",
+    "networkInterfaceName": "VS2022NIC",
     "networkSecurityGroupName": "RemoteDesktopNSG",
     "networkSecurityGroupRules": [
       {
