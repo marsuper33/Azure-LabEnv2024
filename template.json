@@ -1,0 +1,196 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string"
+    },
+    "adminUsername": {
+      "type": "string"
+    },
+    "adminPassword": {
+      "type": "secureString"
+    },
+    "patchMode": {
+      "type": "string"
+    },
+    "enableHotpatching": {
+      "type": "bool"
+    }
+  },
+  "variables": {
+    "networkInterfaceName": "vs2022NIC",
+    "networkSecurityGroupName": "RemoteDesktopNSG",
+    "networkSecurityGroupRules": [
+      {
+        "name": "default-allow-rdp",
+        "properties": {
+          "priority": 1000,
+          "protocol": "TCP",
+          "access": "Allow",
+          "direction": "Inbound",
+          "sourceApplicationSecurityGroups": [],
+          "destinationApplicationSecurityGroups": [],
+          "sourceAddressPrefix": "*",
+          "sourcePortRange": "*",
+          "destinationAddressPrefix": "*",
+          "destinationPortRange": "3389"
+        }
+      }
+    ],
+    "subnetName": "default",
+    "virtualNetworkName": "LabEnvironmentVNET",
+    "addressPrefixes": ["192.168.0.0/16"],
+    "subnets": [
+      {
+        "name": "default",
+        "properties": {
+          "addressPrefix": "192.168.0.0/24"
+        }
+      }
+    ],
+    "publicIpAddressName": "VS2022PIP",
+    "publicIpAddressType": "Static",
+    "publicIpAddressSku": "Basic",
+    "pipDeleteOption": "Delete",
+    "virtualMachineName": "VS2022VM",
+    "osDiskType": "Premium_LRS",
+    "osDiskDeleteOption": "Delete",
+    "virtualMachineSize": "Standard_D4s_v3",
+    "nicDeleteOption": "Delete",
+    "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
+    "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
+    "subnetRef": "[concat(variables('vnetId'), '/subnets/', variables('subnetName'))]"
+  },
+  "resources": [
+    {
+      "name": "[variables('networkInterfaceName')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2021-03-01",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]",
+        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+        "[concat('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              },
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIpAddress": {
+                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('publicIpAddressName'))]",
+                "properties": {
+                  "deleteOption": "[variables('pipDeleteOption')]"
+                }
+              }
+            }
+          }
+        ],
+        "networkSecurityGroup": {
+          "id": "[variables('nsgId')]"
+        }
+      }
+    },
+    {
+      "name": "[variables('networkSecurityGroupName')]",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2019-02-01",
+      "location": "[parameters('location')]",
+      "properties": {
+        "securityRules": "[variables('networkSecurityGroupRules')]"
+      }
+    },
+    {
+      "name": "[variables('virtualNetworkName')]",
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-11-01",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": "[variables('addressPrefixes')]"
+        },
+        "subnets": "[variables('subnets')]"
+      }
+    },
+    {
+      "name": "[variables('publicIpAddressName')]",
+      "type": "Microsoft.Network/publicIpAddresses",
+      "apiVersion": "2019-02-01",
+      "location": "[parameters('location')]",
+      "properties": {
+        "publicIpAllocationMethod": "[variables('publicIpAddressType')]"
+      },
+      "sku": {
+        "name": "[variables('publicIpAddressSku')]"
+      }
+    },
+    {
+      "name": "[variables('virtualMachineName')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2021-07-01",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceName'))]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[variables('virtualMachineSize')]"
+        },
+        "storageProfile": {
+          "osDisk": {
+            "createOption": "fromImage",
+            "managedDisk": {
+              "storageAccountType": "[variables('osDiskType')]"
+            },
+            "deleteOption": "[variables('osDiskDeleteOption')]"
+          },
+          "imageReference": {
+            "publisher": "microsoftvisualstudio",
+            "offer": "visualstudio2022",
+            "sku": "vs-2022-comm-latest-ws2022",
+            "version": "latest"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaceName'))]",
+              "properties": {
+                "deleteOption": "[variables('nicDeleteOption')]"
+              }
+            }
+          ]
+        },
+        "osProfile": {
+          "computerName": "[variables('virtualMachineName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]",
+          "windowsConfiguration": {
+            "enableAutomaticUpdates": false,
+            "provisionVmAgent": true,
+            "patchSettings": {
+              "enableHotpatching": "[parameters('enableHotpatching')]",
+              "patchMode": "[parameters('patchMode')]"
+            }
+          }
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "adminUsername": {
+      "type": "string",
+      "value": "[parameters('adminUsername')]"
+    }
+  }
+}
