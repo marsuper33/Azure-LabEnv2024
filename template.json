@@ -10,12 +10,6 @@
     },
     "adminPassword": {
       "type": "secureString"
-    },
-    "patchMode": {
-      "type": "string"
-    },
-    "enableHotpatching": {
-      "type": "bool"
     }
   },
   "variables": {
@@ -58,6 +52,8 @@
     "osDiskDeleteOption": "Delete",
     "virtualMachineSize": "Standard_D4s_v3",
     "nicDeleteOption": "Delete",
+    "patchMode": "Manual",
+    "enableHotpatching": false,
     "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
     "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
     "subnetRef": "[concat(variables('vnetId'), '/subnets/', variables('subnetName'))]"
@@ -174,8 +170,8 @@
             "enableAutomaticUpdates": false,
             "provisionVmAgent": true,
             "patchSettings": {
-              "enableHotpatching": "[parameters('enableHotpatching')]",
-              "patchMode": "[parameters('patchMode')]"
+              "enableHotpatching": "[variables('enableHotpatching')]",
+              "patchMode": "[variables('patchMode')]"
             }
           }
         },
