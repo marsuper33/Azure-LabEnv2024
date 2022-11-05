@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "contentVersion": "2022-06-20",
+  "contentVersion": "2022-11-07",
   "parameters": {
     "location": {
       "type": "string"
@@ -51,7 +51,7 @@
     "osDiskName": "VS2022OSDISK",
     "osDiskType": "Premium_LRS",
     "osDiskDeleteOption": "Delete",
-    "virtualMachineSize": "Standard_D2ads_v5",
+    "virtualMachineSize": "Standard_D2s_v3",
     "nicDeleteOption": "Delete",
     "patchMode": "Manual",
     "enableHotpatching": false,
