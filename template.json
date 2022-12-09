@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-  "contentVersion": "2022-11-28",
+  "contentVersion": "1.0.0.0",
   "parameters": {
     "location": {
+      "defaultValue": "westeurope",
       "type": "string"
     },
     "adminUsername": {
+      "defaultValue": "Student",
       "type": "string"
     },
     "adminPassword": {
@@ -15,121 +17,33 @@
   "variables": {
     "networkInterfaceName": "VS2022NIC",
     "networkSecurityGroupName": "RemoteDesktopNSG",
-    "networkSecurityGroupRules": [
-      {
-        "name": "default-allow-rdp",
-        "properties": {
-          "priority": 1000,
-          "protocol": "TCP",
-          "access": "Allow",
-          "direction": "Inbound",
-          "sourceApplicationSecurityGroups": [],
-          "destinationApplicationSecurityGroups": [],
-          "sourceAddressPrefix": "*",
-          "sourcePortRange": "*",
-          "destinationAddressPrefix": "*",
-          "destinationPortRange": "3389"
-        }
-      }
-    ],
-    "subnetName": "default",
     "virtualNetworkName": "LabEnvironmentVNET",
-    "addressPrefixes": ["192.168.0.0/16"],
-    "subnets": [
-      {
-        "name": "default",
-        "properties": {
-          "addressPrefix": "192.168.0.0/24"
-        }
-      }
-    ],
     "publicIpAddressName": "VS2022PIP",
-    "publicIpAddressType": "Static",
-    "publicIpAddressSku": "Basic",
-    "pipDeleteOption": "Delete",
     "virtualMachineName": "VS2022VM",
-    "osDiskName": "VS2022OSDISK",
-    "osDiskType": "Premium_LRS",
-    "osDiskDeleteOption": "Delete",
     "virtualMachineSize": "Standard_D4s_v3",
-    "nicDeleteOption": "Delete",
-    "patchMode": "Manual",
-    "enableHotpatching": false,
-    "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]",
-    "vnetId": "[resourceId(resourceGroup().name,'Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]",
-    "subnetRef": "[concat(variables('vnetId'), '/subnets/', variables('subnetName'))]"
+    "osDiskName": "VS2022OSDISK"
   },
   "resources": [
     {
-      "name": "[variables('networkInterfaceName')]",
-      "type": "Microsoft.Network/networkInterfaces",
-      "apiVersion": "2021-03-01",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2022-05-01",
+      "name": "[variables('publicIPAddressName')]",
       "location": "[parameters('location')]",
-      "dependsOn": [
-        "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]",
-        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
-        "[concat('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressName'))]"
-      ],
-      "properties": {
-        "ipConfigurations": [
-          {
-            "name": "ipconfig1",
-            "properties": {
-              "subnet": {
-                "id": "[variables('subnetRef')]"
-              },
-              "privateIPAllocationMethod": "Dynamic",
-              "publicIpAddress": {
-                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('publicIpAddressName'))]",
-                "properties": {
-                  "deleteOption": "[variables('pipDeleteOption')]"
-                }
-              }
-            }
-          }
-        ],
-        "networkSecurityGroup": {
-          "id": "[variables('nsgId')]"
-        }
-      }
-    },
-    {
-      "name": "[variables('networkSecurityGroupName')]",
-      "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2019-02-01",
-      "location": "[parameters('location')]",
-      "properties": {
-        "securityRules": "[variables('networkSecurityGroupRules')]"
-      }
-    },
-    {
-      "name": "[variables('virtualNetworkName')]",
-      "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2020-11-01",
-      "location": "[parameters('location')]",
-      "properties": {
-        "addressSpace": {
-          "addressPrefixes": "[variables('addressPrefixes')]"
-        },
-        "subnets": "[variables('subnets')]"
-      }
-    },
-    {
-      "name": "[variables('publicIpAddressName')]",
-      "type": "Microsoft.Network/publicIpAddresses",
-      "apiVersion": "2019-02-01",
-      "location": "[parameters('location')]",
-      "properties": {
-        "publicIpAllocationMethod": "[variables('publicIpAddressType')]"
-      },
       "sku": {
-        "name": "[variables('publicIpAddressSku')]"
+        "name": "Standard",
+        "tier": "Regional"
+      },
+      "properties": {
+        "publicIPAddressVersion": "IPv4",
+        "publicIPAllocationMethod": "Static",
+        "idleTimeoutInMinutes": 4,
+        "ipTags": []
       }
     },
     {
-      "name": "[variables('virtualMachineName')]",
       "type": "Microsoft.Compute/virtualMachines",
-      "apiVersion": "2021-07-01",
+      "apiVersion": "2022-08-01",
+      "name": "[variables('virtualMachineName')]",
       "location": "[parameters('location')]",
       "dependsOn": [
         "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceName'))]"
@@ -143,52 +57,148 @@
             "name": "[variables('osDiskName')]",
             "createOption": "fromImage",
             "managedDisk": {
-              "storageAccountType": "[variables('osDiskType')]"
+              "storageAccountType": "Premium_LRS"
             },
-            "deleteOption": "[variables('osDiskDeleteOption')]"
+            "deleteOption": "Delete"
           },
           "imageReference": {
-            "publisher": "microsoftvisualstudio",
-            "offer": "visualstudio2022",
-            "sku": "vs-2022-comm-latest-ws2022",
+            "publisher": "microsoftwindowsdesktop",
+            "offer": "windows-11",
+            "sku": "win11-21h2-pro",
             "version": "latest"
           }
-        },
-        "networkProfile": {
-          "networkInterfaces": [
-            {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaceName'))]",
-              "properties": {
-                "deleteOption": "[variables('nicDeleteOption')]"
-              }
-            }
-          ]
         },
         "osProfile": {
           "computerName": "[variables('virtualMachineName')]",
           "adminUsername": "[parameters('adminUsername')]",
           "adminPassword": "[parameters('adminPassword')]",
           "windowsConfiguration": {
+            "provisionVMAgent": true,
             "enableAutomaticUpdates": false,
-            "provisionVmAgent": true,
             "patchSettings": {
-              "enableHotpatching": "[variables('enableHotpatching')]",
-              "patchMode": "[variables('patchMode')]"
+              "patchMode": "Manual",
+              "assessmentMode": "ImageDefault",
+              "enableHotpatching": false
+            },
+            "enableVMAgentPlatformUpdates": false
+          },
+          "secrets": [],
+          "allowExtensionOperations": true,
+          "requireGuestProvisionSignal": true
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaceName'))]",
+              "properties": {
+                "deleteOption": "Delete"
+              }
             }
-          }
+          ]
         },
         "diagnosticsProfile": {
           "bootDiagnostics": {
             "enabled": true
           }
-        }
+        },
+        "licenseType": "Windows_Client"
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2022-05-01",
+      "name": "[variables('networkSecurityGroupName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "RDP",
+            "id": "[resourceId('Microsoft.Network/networkSecurityGroups/securityRules', variables('networkSecurityGroupName'), 'RDP')]",
+            "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+            "properties": {
+              "protocol": "TCP",
+              "sourcePortRange": "*",
+              "destinationPortRange": "3389",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 300,
+              "direction": "Inbound",
+              "sourcePortRanges": [],
+              "destinationPortRanges": [],
+              "sourceAddressPrefixes": [],
+              "destinationAddressPrefixes": []
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2022-05-01",
+      "name": "[variables('virtualNetworkName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": ["192.168.0.0/16"]
+        },
+        "subnets": [
+          {
+            "name": "default",
+            "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), 'default')]",
+            "properties": {
+              "addressPrefix": "192.168.0.0/24",
+              "delegations": [],
+              "privateEndpointNetworkPolicies": "Disabled",
+              "privateLinkServiceNetworkPolicies": "Enabled"
+            },
+            "type": "Microsoft.Network/virtualNetworks/subnets"
+          }
+        ],
+        "virtualNetworkPeerings": [],
+        "enableDdosProtection": false
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2022-05-01",
+      "name": "[variables('networkInterfaceName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]",
+        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+        "[concat('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressName'))]"
+      ],
+      "kind": "Regular",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), 'default')]"
+              },
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIpAddress": {
+                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('publicIpAddressName'))]",
+                "properties": {
+                  "deleteOption": "Delete"
+                }
+              }
+            }
+          }
+        ],
+        "dnsSettings": {
+          "dnsServers": []
+        },
+        "enableAcceleratedNetworking": true,
+        "enableIPForwarding": false,
+        "disableTcpStateTracking": false,
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+        },
+        "nicType": "Standard"
       }
     }
-  ],
-  "outputs": {
-    "adminUsername": {
-      "type": "string",
-      "value": "[parameters('adminUsername')]"
-    }
-  }
+  ]
 }
