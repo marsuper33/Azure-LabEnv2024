@@ -77,14 +77,9 @@
             "enableAutomaticUpdates": false,
             "patchSettings": {
               "patchMode": "Manual",
-              "assessmentMode": "ImageDefault",
               "enableHotpatching": false
-            },
-            "enableVMAgentPlatformUpdates": false
-          },
-          "secrets": [],
-          "allowExtensionOperations": true,
-          "requireGuestProvisionSignal": true
+            }
+          }
         },
         "networkProfile": {
           "networkInterfaces": [
@@ -95,11 +90,6 @@
               }
             }
           ]
-        },
-        "diagnosticsProfile": {
-          "bootDiagnostics": {
-            "enabled": true
-          }
         },
         "licenseType": "Windows_Client"
       }
