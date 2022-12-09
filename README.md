@@ -4,7 +4,7 @@ This repository provides an ARM template for students attending courses at Fireb
 
 ## Setup Azure Lab Environment
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FSJaschinski%2FLabEnv2022%2Fmain%2Ftemplate.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FSJaschinski%2FLabEnv2022%2Fwin11%2Ftemplate.json" target="_blank">
     <img src="https://aka.ms/deploytoazurebutton"/>
 </a>
 
