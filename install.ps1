@@ -24,6 +24,8 @@ winget install --id Microsoft.AzureStorageEmulator --silent --accept-source-agre
 
 winget install --id Microsoft.AzureStorageExplorer --silent --accept-source-agreements --accept-package-agreements
 
+winget install --id Microsoft.AzureCosmosEmulator --silent --accept-source-agreements --accept-package-agreements
+
 winget install --id Docker.DockerDesktop --silent --accept-source-agreements --accept-package-agreements
 
 Write-Host "Ending script at $(Get-Date -format 't')" -ForegroundColor Yellow
