@@ -9,3 +9,7 @@ This repository provides an ARM template for students attending courses at Fireb
 </a>
 
 This template allows you to create a VM with Visual Studio 2022 Latest Community Edition on Windows 11 in an Azure subscription.
+
+## Micrsoft Azure Pass
+
+If you have an Azure Pass availabe, you can use it to create the lab environment. Please follow this [link](https://www.microsoftazurepass.com/) to redeem your Azure Pass.
