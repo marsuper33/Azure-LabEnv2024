@@ -8,4 +8,4 @@ This repository provides an ARM template for students attending courses at Fireb
     <img src="https://aka.ms/deploytoazurebutton"/>
 </a>
 
-This template allows you to create a VM with Visual Studio 2022 Latest Community Edition on Windows Server 2022 in your Azure Pass.
+This template allows you to create a VM with Visual Studio 2022 Latest Community Edition on Windows 11 in an Azure subscription.
