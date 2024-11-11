@@ -3,11 +3,11 @@
   "contentVersion": "1.0.0.0",
   "parameters": {
     "location": {
-      "defaultValue": "westeurope",
+      "defaultValue": "Germany West Central",
       "type": "string"
     },
     "adminUsername": {
-      "defaultValue": "Student",
+      "defaultValue": "Sebastian",
       "type": "string"
     },
     "adminPassword": {
