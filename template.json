@@ -64,7 +64,7 @@
           "imageReference": {
             "publisher": "microsoftwindowsdesktop",
             "offer": "windows-11",
-            "sku": "win11-22h2-pro",
+            "sku": "win11-23h2-pro",
             "version": "latest"
           }
         },
