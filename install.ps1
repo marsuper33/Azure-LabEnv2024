@@ -20,8 +20,6 @@ winget install --id Microsoft.VisualStudioCode --silent --accept-source-agreemen
 
 winget install --id Microsoft.VisualStudio.2022.Community --silent --accept-source-agreements --accept-package-agreements --override "--wait --quiet --add Microsoft.VisualStudio.Workload.Azure --add Microsoft.VisualStudio.Workload.NetWeb"
 
-winget install --id Microsoft.Azure.StorageEmulator --silent --accept-source-agreements --accept-package-agreements
-
 winget install --id Microsoft.Azure.StorageExplorer --silent --accept-source-agreements --accept-package-agreements
 
 winget install --id Microsoft.Azure.CosmosEmulator --silent --accept-source-agreements --accept-package-agreements
