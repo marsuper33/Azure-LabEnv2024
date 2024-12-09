@@ -7,7 +7,7 @@
       "type": "string"
     },
     "adminUsername": {
-      "defaultValue": "Sebastian",
+      "defaultValue": "Student",
       "type": "string"
     },
     "adminPassword": {
